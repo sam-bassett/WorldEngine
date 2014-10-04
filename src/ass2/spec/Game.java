@@ -7,8 +7,6 @@ import javax.media.opengl.*;
 import javax.media.opengl.awt.GLJPanel;
 import javax.media.opengl.glu.GLU;
 import javax.swing.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -20,20 +18,22 @@ import java.util.List;
  *
  * @author sdba660, malcolmr
  */
-public class Game extends JFrame implements GLEventListener, KeyListener {
+public class Game extends JFrame implements GLEventListener {
 
     private Terrain myTerrain;
     private Camera camera;
+    private GameController control;
     private int dx = 0;
     private int dy = 0;
     private double scale = 1;
     private int tr = 0;
     private int fb = 0;
 
-    public Game(Terrain terrain, Camera c) {
+    public Game(Terrain terrain, Camera c, GameController gc) {
     	super("Assignment 2");
         myTerrain = terrain;
         camera = c;
+        control = gc;
     }
     
     /** 
@@ -44,7 +44,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         GLProfile glp = GLProfile.getDefault();
         GLJPanel panel = new GLJPanel();
         panel.addGLEventListener(this);
-        panel.addKeyListener(this);
+        panel.addKeyListener(control);
 
         // Add an animator to call 'display' at 60fps
         FPSAnimator animator = new FPSAnimator(60);
@@ -74,7 +74,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twinRoads.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twoSpline.json"));
         Camera c = new Camera();
-        Game game = new Game(terrain, c);
+        GameController gc = new GameController(c);
+        Game game = new Game(terrain, c, gc);
         game.run();
     }
 
@@ -285,50 +286,5 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         GLU glu = new GLU();
         glu.gluPerspective(60.0, (float)width/(float)height, 0.001, 60.0);
         gl.glMatrixMode(GL2.GL_MODELVIEW);
-		
 	}
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_UP:
-                camera.forwardStep(0.1);
-                break;
-            case KeyEvent.VK_DOWN:
-                camera.backStep(0.1);
-                break;
-            case KeyEvent.VK_LEFT:
-                camera.rotate(-10);
-                break;
-            case KeyEvent.VK_RIGHT:
-                camera.rotate(10);
-                break;
-            case KeyEvent.VK_A:
-                camera.sideStep(0.1);
-                break;
-            case KeyEvent.VK_D:
-                camera.sideStep(-0.1);
-                break;
-//            case KeyEvent.VK_W:
-//                fb++;
-//                break;
-//            case KeyEvent.VK_S:
-//                fb--;
-//                break;
-            case KeyEvent.VK_ESCAPE:
-                System.exit(0);
-            default:
-                break;
-        }
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-
-    }
 }
