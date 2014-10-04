@@ -131,6 +131,9 @@ public class Terrain {
      */
     public double altitude(double x, double z) {
         double altitude = 0;
+        if(!inMesh(x, z)) {
+            return 0;
+        }
         // If x,y integer values
         if(x % 1 == 0 && z % 1 == 0) {
             altitude = getGridAltitude((int) x, (int) z);
@@ -168,6 +171,16 @@ public class Terrain {
             altitude  = a0*(1-xP)*(1-zP) + a1*xP*(1-zP) + a2*zP*(1-xP) + a3*xP*zP;
         }
         return altitude;
+    }
+
+    private boolean inMesh(double x, double z) {
+        if (x >= mySize.width || x < 0) {
+            return false;
+        }
+        if (z >= mySize.height || z < 0) {
+            return false;
+        }
+        return true;
     }
 
     public ArrayList<Triangle> getTriangleMesh() {

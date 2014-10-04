@@ -67,8 +67,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/exampleLevel.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/treeTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/basicLightTest.json"));
-        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/negativeLightTest.json"));
-        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/simpleBezier.json"));
+        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/negativeLightTest.json"));
+        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/simpleBezier.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twinRoads.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twoSpline.json"));
         Camera c = new Camera();
@@ -84,17 +84,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 
         GLU glu = new GLU();
         double[] pos = camera.getPosition();
+        camera.updateHeight(camera.CAMERA_HEIGHT + myTerrain.altitude(pos[0],pos[2]));
+        pos = camera.getPosition();
         double[] dir = camera.getDirection();
         double[] up  = camera.getUpVector();
         glu.gluLookAt(pos[0],pos[1],pos[2],
                 dir[0],dir[1],dir[2], up[0],up[1],up[2]);
-
-        // Default camera movement controls
-        gl.glRotated(dx,1,0,0);
-        gl.glRotated(dy,0,1,0);
-        gl.glScaled(scale, scale, scale);
-        gl.glTranslated(tr,0,0);
-        gl.glTranslated(0,0,fb);
 
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         // Render Terrain
@@ -132,6 +127,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glEnable(GL2.GL_LIGHTING);
         // White diffuse, specular lighting (from notes)
         float lightDifAndSpec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float lightDir[] = myTerrain.getSunlight();
+        // TODO not a hunjie on this light position, see negativeSunlightTest
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightDir, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightDifAndSpec,0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightDifAndSpec,0);
 
@@ -151,7 +149,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glLoadIdentity();
 
         GLU glu = new GLU();
-        glu.gluPerspective(80.0, (float)width/(float)height, 0.001, 60.0);
+        glu.gluPerspective(60.0, (float)width/(float)height, 0.001, 60.0);
         gl.glMatrixMode(GL2.GL_MODELVIEW);
 		
 	}
@@ -165,49 +163,29 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
-                //if (step < 180) step++;
-                if (dx < 360)
-                    dx+=4;
-                else dx=0;
+                camera.forwardStep(0.1);
                 break;
             case KeyEvent.VK_DOWN:
-                //if (step > 0) step--;
-                if (dx > -360)
-                    dx-=4;
-                else dx=0;
+                camera.backStep(0.1);
                 break;
             case KeyEvent.VK_LEFT:
-                if (dy > -360)
-                    dy-=4;
-                else dy=0;
+                camera.rotate(-10);
                 break;
             case KeyEvent.VK_RIGHT:
-                if (dy < 360)
-                    dy+=4;
-                else dy=0;
-                break;
-            case KeyEvent.VK_EQUALS:
-                scale++;
-                break;
-            case KeyEvent.VK_MINUS:
-                if(scale > 1) {
-                    scale--;
-                } else {
-                    scale /= 1.5;
-                }
+                camera.rotate(10);
                 break;
             case KeyEvent.VK_A:
-                tr++;
+                camera.sideStep(0.1);
                 break;
             case KeyEvent.VK_D:
-                tr--;
+                camera.sideStep(-0.1);
                 break;
-            case KeyEvent.VK_W:
-                fb++;
-                break;
-            case KeyEvent.VK_S:
-                fb--;
-                break;
+//            case KeyEvent.VK_W:
+//                fb++;
+//                break;
+//            case KeyEvent.VK_S:
+//                fb--;
+//                break;
             case KeyEvent.VK_ESCAPE:
                 System.exit(0);
             default:

@@ -4,6 +4,7 @@ package ass2.spec;
  * Created by sam on 4/10/2014.
  */
 public class Camera {
+    public final double CAMERA_HEIGHT = 0.5;
     // position, direction, up vector
     // forward, back, left, right fn.s
     // (map direction + movement to position/rotation changes)
@@ -11,20 +12,28 @@ public class Camera {
     private double   rotation;
 
     public Camera() {
-        position    = new double[]{0,0.3,0}; // x, y, z (place at height 0.2 above plane)
+        position    = new double[]{0,CAMERA_HEIGHT,0}; // x, y, z (place at height 0.2 above plane)
         rotation    = 45;                    // in degrees from x axis
         up          = new double[]{0,1,0};   // this probs shouldn't change in base game
     }
 
     public void forwardStep(double stepSize) {
         // only in x-z plane
-        position[0] += Math.cos(rotation)*stepSize;
-        position[2] += Math.sin(rotation)*stepSize;
+        double angle = Math.toRadians(rotation);
+        position[0] += Math.cos(angle)*stepSize;
+        position[2] += Math.sin(angle)*stepSize;
     }
 
     public void backStep(double stepSize) {
-        position[0] -= Math.cos(rotation)*stepSize;
-        position[2] -= Math.sin(rotation)*stepSize;
+        double angle = Math.toRadians(rotation);
+        position[0] -= Math.cos(angle)*stepSize;
+        position[2] -= Math.sin(angle)*stepSize;
+    }
+
+    public void sideStep(double stepSize) {
+        double angle = Math.toRadians(rotation);
+        position[0] += Math.cos(90 - angle)*stepSize;
+        position[2] -= Math.sin(90 - angle)*stepSize;
     }
 
     public void rotate(double dTheta) {
@@ -63,7 +72,8 @@ public class Camera {
 
     public double[] getDirection() {
         // look at 1 unit in front of camera's nose
-        return new double[]{Math.cos(rotation), position[1], Math.sin(rotation)};
+        double angle = Math.toRadians(rotation);
+        return new double[]{position[0] + Math.cos(angle), position[1], position[2] + Math.sin(angle)};
     }
 
     public double getRotation() {
