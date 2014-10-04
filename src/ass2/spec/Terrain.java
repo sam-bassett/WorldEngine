@@ -273,22 +273,11 @@ public class Terrain {
                 double point[] = r.point(i);
                 // derivative
                 double derv[] = r.derivative(i);
-                prevDerv = derv;
-                // TODO A better way to do this is with normal to tangent - scale as needed for width
-//                double vertices[][] = {{previous[0]-roadWidth,y,previous[1]-roadWidth},{previous[0]+roadWidth,y,previous[1]+roadWidth},
-//                        {previous[0]-roadWidth,y-0.02,previous[1]-roadWidth},{previous[0]+roadWidth,y-0.02,previous[1]+roadWidth},
-//                        {point[0]-roadWidth,y,point[1]-roadWidth},{point[0]+roadWidth,y,point[1]+roadWidth},
-//                        {point[0]-roadWidth,y-0.02,point[1]-roadWidth},{point[0]+roadWidth,y-0.02,point[1]+roadWidth}};
-//                double vertices[][] = {
-//                        {previous[0]-r.width()*prevDerv[0],y,     previous[1]+r.width()*prevDerv[1]},
-//                        {previous[0]+r.width()*prevDerv[0],y,     previous[1]-r.width()*prevDerv[1]},
-//                        {previous[0]-r.width()*prevDerv[0],y-0.02,previous[1]+r.width()*prevDerv[1]},
-//                        {previous[0]+r.width()*prevDerv[0],y-0.02,previous[1]-r.width()*prevDerv[1]},
-//                        {point[0]+r.width()*derv[0],y,     point[1]-r.width()*derv[1]},
-//                        {point[0]-r.width()*derv[0],y,     point[1]+r.width()*derv[1]},
-//                        {point[0]+r.width()*derv[0],y-0.02,point[1]-r.width()*derv[1]},
-//                        {point[0]-r.width()*derv[0],y-0.02,point[1]+r.width()*derv[1]}
-//                };
+                // list of vertices for rendering road
+                //TODO While this method works ok, gaps are formed in outside of curve between segments
+                // (irregardless of segment size). Presumably the segments also overlap on inside of curve.
+
+                // Save previous absolute points, only recalculate new derivatives
                 double vertices[][] = {
                         {previous[0] - prevDerv[1]*roadWidth,y,     previous[1] + prevDerv[0]*roadWidth},
                         {previous[0] + prevDerv[1]*roadWidth,y,     previous[1] - prevDerv[0]*roadWidth},
@@ -299,7 +288,7 @@ public class Terrain {
                         {point[0] - derv[1]*roadWidth,y-0.02,   point[1] + derv[0]*roadWidth},
                         {point[0] + derv[1]*roadWidth,y-0.02,   point[1] - derv[0]*roadWidth}
                 };
-                int topFace[] = {0,1,4,5};
+                int topFace[] = {0,1,5,4};
                 int frontFace[] = {0,2,3,1};
                 int posSideFace[] = {1,3,7,5};
                 int negSideFace[] = {2,0,4,6};
@@ -309,13 +298,9 @@ public class Terrain {
                 // topFace normal:
                 gl.glNormal3dv(MathUtils.normal(vertices[0],vertices[1],vertices[4]),0);
                 for(int d : topFace) {
-                    System.out.println("(");
-                    for(double e : vertices[d]) {
-                        System.out.println(e + ",");
-                    }
-                    System.out.println(")");
                     gl.glVertex3dv(vertices[d],0);
                 }
+                System.out.println();
                 gl.glEnd();
                 // frontFace:
                 gl.glBegin(GL2.GL_QUADS);
