@@ -81,6 +81,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         GL2 gl = drawable.getGL().getGL2();
         gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();
+        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
 
         GLU glu = new GLU();
         double[] pos = camera.getPosition();
@@ -91,13 +92,17 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         glu.gluLookAt(pos[0],pos[1],pos[2],
                 dir[0],dir[1],dir[2], up[0],up[1],up[2]);
 
-        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         // Render Terrain
         float terrain[] = {0.96f, 0.67f, 0.55f, 1f};
-        //float green[] = {0f,1f,0f,1f};
+        renderTerrain(gl, terrain);
+        renderTrees(gl);
+        renderRoads(gl, 30);
+	}
+
+    private void renderTerrain(GL2 gl, float colour[]) {
         gl.glBegin(GL2.GL_TRIANGLES);
         {
-            gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, terrain,0);
+            gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, colour,0);
             ArrayList<Triangle> mesh = myTerrain.getTriangleMesh();
             for(Triangle t : mesh) {
                 gl.glNormal3dv(t.getNormal(),0);
@@ -107,10 +112,15 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
             }
         }
         gl.glEnd();
-        // Render trees
+    }
+
+    private void renderTrees(GL2 gl) {
         myTerrain.renderTrees(gl);
-        myTerrain.renderRoads(gl, 30);
-	}
+    }
+
+    private void renderRoads(GL2 gl, int segments) {
+        myTerrain.renderRoads(gl, segments);
+    }
 
 	@Override
 	public void dispose(GLAutoDrawable drawable) {
@@ -144,6 +154,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	@Override
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width,
 			int height) {
+        // Thought about refactoring this into Camera class, but that seems to
+        // unnecessarily break abstraction - Camera doesn't know about GL
+        // currently, this is the rendering class, reshape stays here.
         GL2 gl = drawable.getGL().getGL2();
         gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
