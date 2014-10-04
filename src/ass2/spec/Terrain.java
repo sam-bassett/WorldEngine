@@ -8,16 +8,11 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
-//import sailing.objects.Island;
-
 /**
- * COMMENT: Comment HeightMap 
+ * Terrain model class for world engine
  *
- * @author malcolmr
+ * @author sdba660
  */
-
-//TODO Ensure world coordinates are homogeneous for rendering/camera purposes
 public class Terrain {
 
     private Dimension mySize;
@@ -202,6 +197,9 @@ public class Terrain {
         return mesh;
     }
 
+    /*****************************************************************
+     ** TODO Refactor this whole mess of gl code out of model class **
+     ****************************************************************/
     /**
      * Render trees stored in Terrain using current GL context
      * @param gl
@@ -257,7 +255,7 @@ public class Terrain {
         gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, roadCol,0);
         double roadWidth = 0.05;
         if(segments <= 0) {
-            System.out.println("Segments must be a positive whole number");
+            System.out.println("Segments must be a positive (nonzero) integer");
             return;
         }
         // For each road, split into detail segments and draw at required location
@@ -274,19 +272,15 @@ public class Terrain {
                 // derivative
                 double derv[] = r.derivative(i);
                 // list of vertices for rendering road
-                //TODO While this method works ok, gaps are formed in outside of curve between segments
-                // (irregardless of segment size). Presumably the segments also overlap on inside of curve.
-
-                // Save previous absolute points, only recalculate new derivatives
                 double vertices[][] = {
                         {previous[0] - prevDerv[1]*roadWidth,y,     previous[1] + prevDerv[0]*roadWidth},
                         {previous[0] + prevDerv[1]*roadWidth,y,     previous[1] - prevDerv[0]*roadWidth},
-                        {previous[0] - prevDerv[1]*roadWidth,y-0.02,previous[1] + prevDerv[0]*roadWidth},
-                        {previous[0] + prevDerv[1]*roadWidth,y-0.02,previous[1] - prevDerv[0]*roadWidth},
+                        {previous[0] - prevDerv[1]*roadWidth,y-0.002,previous[1] + prevDerv[0]*roadWidth},
+                        {previous[0] + prevDerv[1]*roadWidth,y-0.002,previous[1] - prevDerv[0]*roadWidth},
                         {point[0] - derv[1]*roadWidth,y,        point[1] + derv[0]*roadWidth},
                         {point[0] + derv[1]*roadWidth,y,        point[1] - derv[0]*roadWidth},
-                        {point[0] - derv[1]*roadWidth,y-0.02,   point[1] + derv[0]*roadWidth},
-                        {point[0] + derv[1]*roadWidth,y-0.02,   point[1] - derv[0]*roadWidth}
+                        {point[0] - derv[1]*roadWidth,y-0.002,   point[1] + derv[0]*roadWidth},
+                        {point[0] + derv[1]*roadWidth,y-0.002,   point[1] - derv[0]*roadWidth}
                 };
                 int topFace[] = {0,1,5,4};
                 int frontFace[] = {0,2,3,1};
@@ -300,7 +294,6 @@ public class Terrain {
                 for(int d : topFace) {
                     gl.glVertex3dv(vertices[d],0);
                 }
-                System.out.println();
                 gl.glEnd();
                 // frontFace:
                 gl.glBegin(GL2.GL_QUADS);
@@ -333,9 +326,11 @@ public class Terrain {
                 previous = point;
                 prevDerv = derv;
             }
-            gl.glPopMatrix();
         }
     }
+    /*****************************************************************
+     *******************        TODO End TODO        *****************
+     ****************************************************************/
 
     /**
      * Add a tree at the specified (x,z) point. 

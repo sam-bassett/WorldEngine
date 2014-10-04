@@ -39,7 +39,6 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
      */
     public void run() {
         GLProfile glp = GLProfile.getDefault();
-        GLCapabilities caps = new GLCapabilities(glp);
         GLJPanel panel = new GLJPanel();
         panel.addGLEventListener(this);
         panel.addKeyListener(this);
@@ -52,7 +51,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         getContentPane().add(panel);
         setSize(800, 600);
         setVisible(true);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
     
     /**
@@ -68,8 +67,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/treeTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/basicLightTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/negativeLightTest.json"));
-        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/simpleBezier.json"));
-        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twinRoads.json"));
+        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/simpleBezier.json"));
+        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twinRoads.json"));
+        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twoSpline.json"));
         Game game = new Game(terrain);
         game.run();
     }
@@ -82,7 +82,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 
         //TODO Create camera object
         GLU glu = new GLU();
-        glu.gluLookAt(0,0.5,14,0,0,0,0,1,0);
+        glu.gluLookAt(0,0.5,0,1,0,1,0,1,0);
 
         // Default camera movement controls
         gl.glRotated(dx,1,0,0);
@@ -146,7 +146,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glLoadIdentity();
 
         GLU glu = new GLU();
-        glu.gluPerspective(80.0, (float)width/(float)height, 1.0, 60.0);
+        glu.gluPerspective(80.0, (float)width/(float)height, 0.001, 60.0);
         gl.glMatrixMode(GL2.GL_MODELVIEW);
 		
 	}

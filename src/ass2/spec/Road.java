@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * COMMENT: Comment Road 
+ * Road class for world engine, uses bezier curve to describe road
+ * and includes functions for working with curve (such as tangent)
  *
- * @author malcolmr
+ * @author sdba660
  */
 public class Road {
 
