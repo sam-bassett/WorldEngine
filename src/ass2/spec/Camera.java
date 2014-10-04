@@ -1,7 +1,9 @@
 package ass2.spec;
 
 /**
- * Created by sam on 4/10/2014.
+ * Camera class for perspective and movement
+ *
+ * Created by sdba660 on 4/10/2014.
  */
 public class Camera {
     public final double CAMERA_HEIGHT = 0.5;

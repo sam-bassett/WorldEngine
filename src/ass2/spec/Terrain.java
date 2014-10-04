@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Terrain model class for world engine
  *
- * @author sdba660
+ * @author sdba660, malcolmr
  */
 public class Terrain {
 

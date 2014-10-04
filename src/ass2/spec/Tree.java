@@ -3,7 +3,7 @@ package ass2.spec;
 /**
  * COMMENT: Comment Tree 
  *
- * @author malcolmr
+ * @author sdba660, malcolmr
  */
 public class Tree {
     public final int DEFAULT_HEIGHT = 4;

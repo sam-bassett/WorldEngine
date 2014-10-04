@@ -1,8 +1,9 @@
 package ass2.spec;
 
 /**
- * A collection of useful math methods
- * Extended from malcolmr's code in Ass1 by Sam Bassett
+ * A collection of useful math methods (extended from Ass1)
+ *
+ * @author malcolmr, sdba660
  */
 public class MathUtils {
 

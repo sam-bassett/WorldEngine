@@ -7,7 +7,7 @@ import java.util.List;
  * Road class for world engine, uses bezier curve to describe road
  * and includes functions for working with curve (such as tangent)
  *
- * @author sdba660
+ * @author sdba660, malcolmr
  */
 public class Road {
 

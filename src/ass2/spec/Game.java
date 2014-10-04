@@ -16,9 +16,9 @@ import java.util.List;
 
 
 /**
- * COMMENT: Comment Game 
+ * Game class, renders and controls
  *
- * @author malcolmr
+ * @author sdba660, malcolmr
  */
 public class Game extends JFrame implements GLEventListener, KeyListener {
 

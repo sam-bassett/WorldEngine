@@ -10,10 +10,6 @@ public class Triangle {
     private List<Vertex> vertexList;
     private double[] normal = null;
 
-    public Triangle() {
-        vertexList = new ArrayList<Vertex>(3);
-    }
-
     public Triangle(Vertex v0, Vertex v1, Vertex v2) {
         vertexList = new ArrayList<Vertex>();
         vertexList.add(v0);
