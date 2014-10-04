@@ -21,16 +21,17 @@ import java.util.ArrayList;
 public class Game extends JFrame implements GLEventListener, KeyListener {
 
     private Terrain myTerrain;
+    private Camera camera;
     private int dx = 0;
     private int dy = 0;
     private double scale = 1;
     private int tr = 0;
     private int fb = 0;
 
-    public Game(Terrain terrain) {
+    public Game(Terrain terrain, Camera c) {
     	super("Assignment 2");
         myTerrain = terrain;
-   
+        camera = c;
     }
     
     /** 
@@ -70,7 +71,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/simpleBezier.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twinRoads.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twoSpline.json"));
-        Game game = new Game(terrain);
+        Camera c = new Camera();
+        Game game = new Game(terrain, c);
         game.run();
     }
 
@@ -80,9 +82,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();
 
-        //TODO Create camera object
         GLU glu = new GLU();
-        glu.gluLookAt(0,0.5,0,1,0,1,0,1,0);
+        double[] pos = camera.getPosition();
+        double[] dir = camera.getDirection();
+        double[] up  = camera.getUpVector();
+        glu.gluLookAt(pos[0],pos[1],pos[2],
+                dir[0],dir[1],dir[2], up[0],up[1],up[2]);
 
         // Default camera movement controls
         gl.glRotated(dx,1,0,0);

@@ -57,6 +57,15 @@ public class Camera {
         return position;
     }
 
+    public double[] getUpVector() {
+        return up;
+    }
+
+    public double[] getDirection() {
+        // look at 1 unit in front of camera's nose
+        return new double[]{Math.cos(rotation), position[1], Math.sin(rotation)};
+    }
+
     public double getRotation() {
         return rotation;
     }
