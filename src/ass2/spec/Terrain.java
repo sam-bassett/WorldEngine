@@ -1,8 +1,5 @@
 package ass2.spec;
 
-import com.jogamp.opengl.util.gl2.GLUT;
-
-import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import java.awt.*;
 import java.util.ArrayList;
@@ -216,9 +213,8 @@ public class Terrain {
     /**
      * Render trees stored in Terrain using current GL context
      * @param gl
-     */
+     *//*
     public void renderTrees(GL2 gl) {
-        // TODO generalise rendering function for all terrain
         float trunkCol[] = {0.35f, 0.31f, 0.27f, 1f};
         float leavesCol[]= {0.45f, 0.65f, 0.26f, 1f};
         gl.glPushMatrix();
@@ -252,11 +248,9 @@ public class Terrain {
             gl.glPopMatrix();
             // Undo tree location transform
             gl.glPopMatrix();
-            //System.out.println("(x, y, z) = " + x + ", " + y + ", " + z);
         }
-        //System.exit(0);
         gl.glPopMatrix();
-    }
+    }*/
 
     /**
      * Render roads in Terrain based on current gl, plus give level of detail

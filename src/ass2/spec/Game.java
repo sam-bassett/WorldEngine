@@ -1,6 +1,7 @@
 package ass2.spec;
 
 import com.jogamp.opengl.util.FPSAnimator;
+import com.jogamp.opengl.util.gl2.GLUT;
 
 import javax.media.opengl.*;
 import javax.media.opengl.awt.GLJPanel;
@@ -11,6 +12,7 @@ import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -115,7 +117,44 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     }
 
     private void renderTrees(GL2 gl) {
-        myTerrain.renderTrees(gl);
+        //myTerrain.renderTrees(gl);
+        List<Tree> treeList = myTerrain.trees();
+        gl.glPushMatrix();
+        GLUT glut = new GLUT();
+        gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2.GL_FILL);
+        // iterate through trees in Terrain, translating and drawing as required
+        for(Tree t : treeList) {
+            float trunk[] = t.getTrunkColour();
+            float leaves[]= t.getLeafColour();
+            // get location
+            double x = t.getPosition()[0];
+            double y = t.getPosition()[1];
+            double z = t.getPosition()[2];
+            // Save base matrix
+            gl.glPushMatrix();
+            // Translate to location
+            gl.glTranslated(x, y, z);
+            // Draw trunk of height t.getHeight(),
+            // push, translate up t.getHeight(), draw leaves, pop
+            // rotate cylinder:
+            gl.glPushMatrix();
+            gl.glRotated(-90, 1, 0, 0);
+            // width, height, ...
+            gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, trunk,0);
+            glut.glutSolidCylinder(0.1, 0.5, 20, 20);
+            gl.glPopMatrix();
+            gl.glPushMatrix();
+            gl.glTranslated(0, 0.5, 0);
+            // Leaves
+            gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, leaves,0);
+            glut.glutSolidSphere(0.2, 20, 20);
+            // Undo height transform
+            gl.glPopMatrix();
+            // Undo tree location transform
+            gl.glPopMatrix();
+        }
+        // Undo final transform to return matrix to previous state
+        gl.glPopMatrix();
     }
 
     private void renderRoads(GL2 gl, int segments) {

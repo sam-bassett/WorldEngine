@@ -11,6 +11,7 @@ public class Tree {
 
     private double[] myPos;
     private double height, width;
+    private float[] trunkColour, leafColour;
     
     public Tree(double x, double y, double z) {
         myPos = new double[3];
@@ -19,6 +20,8 @@ public class Tree {
         myPos[2] = z;
         height   = DEFAULT_HEIGHT;
         width    = DEFAULT_WIDTH;
+        trunkColour = new float[]{0.35f, 0.31f, 0.27f, 1f};
+        leafColour  = new float[]{0.45f, 0.65f, 0.26f, 1f};
     }
     
     public double[] getPosition() {
@@ -41,4 +44,19 @@ public class Tree {
         return width;
     }
 
+    public float[] getTrunkColour() {
+        return trunkColour;
+    }
+
+    public float[] getLeafColour() {
+        return leafColour;
+    }
+
+    public void setTrunkColour(float r, float g, float b, float a) {
+        trunkColour = new float[]{r, g, b, a};
+    }
+
+    public void setLeafColour(float r, float g, float b, float a) {
+        leafColour = new float[]{r, g, b, a};
+    }
 }
