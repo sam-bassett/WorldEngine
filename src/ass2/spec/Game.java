@@ -66,10 +66,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     public static void main(String[] args) throws FileNotFoundException {
         //Terrain terrain = LevelIO.load(new File(args[0]));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/fiveByFive.json"));
-        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/exampleLevel.json"));
+        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/exampleLevel.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/treeTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/basicLightTest.json"));
-        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/negativeLightTest.json"));
+        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/negativeLightTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/simpleBezier.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twinRoads.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twoSpline.json"));
@@ -158,7 +158,89 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     }
 
     private void renderRoads(GL2 gl, int segments) {
-        myTerrain.renderRoads(gl, segments);
+        //myTerrain.renderRoads(gl, segments);
+        if (segments <= 0) {
+            System.out.println("Segments must be a positive (nonzero) integer");
+            return;
+        }
+
+        List<Road> roads = myTerrain.roads();
+        for(Road r : roads) {
+            double roadWidth = 0.02;//r.width();
+            float roadCol[]  = r.getRoadCol();
+            // set road material + colour
+            gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, roadCol,0);
+            int roadSize = r.size();
+            // split road into segments
+            double segmentSize = (double)roadSize/(double)segments;
+            // record previous point and previous derivative, starting with 0
+            double previous[] = r.point(0);
+            double prevDerv[] = r.derivative(0);
+            // Altitude guaranteed to be constant, make roads v. thin
+            double y = myTerrain.altitude(previous[0], previous[1])+0.02;
+            // iterate through segments in road, building vertex list each time
+            for(double i = segmentSize; i < roadSize; i+=segmentSize) {
+                double point[] = r.point(i);
+                // derivative
+                double derv[] = r.derivative(i);
+                // list of vertices for rendering road
+                double vertices[][] = {
+                        {previous[0] - prevDerv[1] * roadWidth, y, previous[1] + prevDerv[0] * roadWidth},
+                        {previous[0] + prevDerv[1] * roadWidth, y, previous[1] - prevDerv[0] * roadWidth},
+                        {previous[0] - prevDerv[1] * roadWidth, y - 0.002, previous[1] + prevDerv[0] * roadWidth},
+                        {previous[0] + prevDerv[1] * roadWidth, y - 0.002, previous[1] - prevDerv[0] * roadWidth},
+                        {point[0] - derv[1] * roadWidth, y, point[1] + derv[0] * roadWidth},
+                        {point[0] + derv[1] * roadWidth, y, point[1] - derv[0] * roadWidth},
+                        {point[0] - derv[1] * roadWidth, y - 0.002, point[1] + derv[0] * roadWidth},
+                        {point[0] + derv[1] * roadWidth, y - 0.002, point[1] - derv[0] * roadWidth}
+                };
+                // Face lists; underside not shown therefore not rendered
+                int topFace[] = {0, 1, 5, 4};
+                int frontFace[] = {0, 2, 3, 1};
+                int posSideFace[] = {1, 3, 7, 5};
+                int negSideFace[] = {2, 0, 4, 6};
+                int backFace[] = {5, 7, 6, 4};
+                // Render all faces of extrusion
+                // topFace
+                gl.glBegin(GL2.GL_QUADS);
+                // compute normal:
+                gl.glNormal3dv(MathUtils.normal(vertices[0], vertices[1], vertices[4]), 0);
+                for (int d : topFace) {
+                    gl.glVertex3dv(vertices[d], 0);
+                }
+                gl.glEnd();
+                // frontFace:
+                gl.glBegin(GL2.GL_QUADS);
+                gl.glNormal3dv(MathUtils.normal(vertices[0], vertices[2], vertices[3]), 0);
+                for (int d : frontFace) {
+                    gl.glVertex3dv(vertices[d], 0);
+                }
+                gl.glEnd();
+                // posSide:
+                gl.glBegin(GL2.GL_QUADS);
+                gl.glNormal3dv(MathUtils.normal(vertices[1], vertices[3], vertices[7]), 0);
+                for (int d : posSideFace) {
+                    gl.glVertex3dv(vertices[d], 0);
+                }
+                gl.glEnd();
+                // negSide
+                gl.glBegin(GL2.GL_QUADS);
+                gl.glNormal3dv(MathUtils.normal(vertices[2], vertices[0], vertices[4]), 0);
+                for (int d : negSideFace) {
+                    gl.glVertex3dv(vertices[d], 0);
+                }
+                gl.glEnd();
+                // rearFace
+                gl.glBegin(GL2.GL_QUADS);
+                gl.glNormal3dv(MathUtils.normal(vertices[5], vertices[7], vertices[6]), 0);
+                for (int d : backFace) {
+                    gl.glVertex3dv(vertices[d], 0);
+                }
+                gl.glEnd();
+                previous = point;
+                prevDerv = derv;
+            }
+        }
     }
 
 	@Override

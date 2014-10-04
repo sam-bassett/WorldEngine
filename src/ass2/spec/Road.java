@@ -13,15 +13,17 @@ public class Road {
 
     private List<Double> myPoints;
     private double myWidth;
+    private float[] roadCol;
     
     /** 
      * Create a new road starting at the specified point
      */
     public Road(double width, double x0, double y0) {
-        myWidth = width;
+        myWidth = width/10;
         myPoints = new ArrayList<Double>();
         myPoints.add(x0);
         myPoints.add(y0);
+        roadCol = new float[]{0.22f,0.22f,0.22f,1f};
     }
 
     /**
@@ -31,11 +33,20 @@ public class Road {
      * @param spine
      */
     public Road(double width, double[] spine) {
-        myWidth = width;
+        myWidth = width/10;
         myPoints = new ArrayList<Double>();
         for (int i = 0; i < spine.length; i++) {
             myPoints.add(spine[i]);
         }
+        roadCol = new float[]{0.22f,0.22f,0.22f,1f};
+    }
+
+    public void setRoadCol(float r, float g, float b, float a) {
+        roadCol = new float[]{r, g, b, a};
+    }
+
+    public float[] getRoadCol() {
+        return roadCol;
     }
 
     /**
