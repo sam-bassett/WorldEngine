@@ -16,30 +16,30 @@ import java.nio.ByteBuffer;
 /**
  * Texture loader and manager
  *
- * @author malcolmr (I think)
+ * original author malcolmr (I think)
+ * modified, cleaned up, commented and extended by sdba660
  */
 public class MyTexture {
-    private boolean mipMapEnabled = true;
+    private boolean mipMapEnabled;
+    private int[] textureID = new int[1]; // this is always 0?
 
-
-    private int[] textureID = new int[1];
-
-    public MyTexture(GL2 gl, String fileName,String extension) {
-        this(gl,fileName,extension,true);
+    public MyTexture(GL2 gl, String fileName) {
+        this(gl, fileName, true);
     }
 
-    //Create a texture from a file. Make sure the file has a width and height
-    //that is a power of 2
-    public MyTexture(GL2 gl, String fileName,String extension,boolean mipmaps) {
-        mipMapEnabled = mipmaps;
+    /**
+     * Create a texture from a file. Ensure width and height are powers of 2.
+     * @param gl OpenGL context
+     * @param fileName String of file from which to load texture
+     * @param useMipMap boolean, true to use mipmapping
+     */
+    public MyTexture(GL2 gl, String fileName, boolean useMipMap) {
+        mipMapEnabled = useMipMap;
         TextureData data = null;
         try {
             File file = new File(fileName);
             BufferedImage img = ImageIO.read(file); // read file into BufferedImage
             ImageUtil.flipImageVertically(img);
-
-            //This library will result in different formats being upside down.
-            //data = TextureIO.newTextureData(GLProfile.getDefault(), file, false,extension);
 
             //This library call flips all images the same way
             data = AWTTextureIO.newTextureData(GLProfile.getDefault(), img, false);
@@ -51,8 +51,7 @@ public class MyTexture {
 
         gl.glGenTextures(1, textureID, 0);
         //The first time bind is called with the given id,
-        //an openGL texture object is created and bound
-        //to the id
+        //an OpenGL texture object is created and bound to the id.
         //It also makes it the current texture.
         gl.glBindTexture(GL.GL_TEXTURE_2D, textureID[0]);
 
