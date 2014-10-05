@@ -170,10 +170,10 @@ public class Terrain {
     }
 
     private boolean inMesh(double x, double z) {
-        if (x >= mySize.width || x < 0) {
+        if (Math.ceil(x) >= mySize.width || x < 0) {
             return false;
         }
-        if (z >= mySize.height || z < 0) {
+        if (Math.ceil(z) >= mySize.height || z < 0) {
             return false;
         }
         return true;

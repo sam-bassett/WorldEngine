@@ -34,8 +34,8 @@ public class Camera {
 
     public void sideStep(double stepSize) {
         double angle = Math.toRadians(rotation);
-        position[0] += Math.cos(90 - angle)*stepSize;
-        position[2] -= Math.sin(90 - angle)*stepSize;
+        position[0] += Math.sin(angle)*stepSize;
+        position[2] -= Math.cos(angle)*stepSize;
     }
 
     public void rotate(double dTheta) {

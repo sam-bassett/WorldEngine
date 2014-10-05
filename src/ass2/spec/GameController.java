@@ -10,9 +10,33 @@ import java.awt.event.KeyListener;
  */
 public class GameController implements KeyListener {
     private Camera c;
+    private boolean[] keyStates;
 
     public GameController(Camera c) {
         this.c = c;
+        keyStates = new boolean[256];
+    }
+
+    public void update() {
+        // TODO think about scaling this, currently @ 60fps it's very fast
+        if (keyStates[KeyEvent.VK_UP])
+            c.forwardStep(0.1);
+        if (keyStates[KeyEvent.VK_DOWN])
+            c.backStep(0.1);
+        if (keyStates[KeyEvent.VK_LEFT])
+            c.rotate(-5);
+        if (keyStates[KeyEvent.VK_RIGHT])
+            c.rotate(5);
+        if (keyStates[KeyEvent.VK_W])
+            c.forwardStep(0.1);
+        if (keyStates[KeyEvent.VK_S])
+            c.backStep(0.1);
+        if (keyStates[KeyEvent.VK_A])
+            c.sideStep(0.1);
+        if (keyStates[KeyEvent.VK_D])
+            c.sideStep(-0.1);
+        if (keyStates[KeyEvent.VK_ESCAPE])
+            System.exit(0);
     }
 
     @Override
@@ -22,34 +46,11 @@ public class GameController implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_UP:
-                c.forwardStep(0.1);
-                break;
-            case KeyEvent.VK_DOWN:
-                c.backStep(0.1);
-                break;
-            case KeyEvent.VK_LEFT:
-                c.rotate(-10);
-                break;
-            case KeyEvent.VK_RIGHT:
-                c.rotate(10);
-                break;
-            case KeyEvent.VK_A:
-                c.sideStep(0.1);
-                break;
-            case KeyEvent.VK_D:
-                c.sideStep(-0.1);
-                break;
-            case KeyEvent.VK_ESCAPE:
-                System.exit(0);
-            default:
-                break;
-        }
+        keyStates[e.getKeyCode()] = true;
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-
+        keyStates[e.getKeyCode()] = false;
     }
 }

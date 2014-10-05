@@ -19,7 +19,7 @@ public class Road {
      * Create a new road starting at the specified point
      */
     public Road(double width, double x0, double y0) {
-        myWidth = width/10;
+        myWidth = width/5;
         myPoints = new ArrayList<Double>();
         myPoints.add(x0);
         myPoints.add(y0);
@@ -33,7 +33,7 @@ public class Road {
      * @param spine
      */
     public Road(double width, double[] spine) {
-        myWidth = width/10;
+        myWidth = width/5;
         myPoints = new ArrayList<Double>();
         for (int i = 0; i < spine.length; i++) {
             myPoints.add(spine[i]);

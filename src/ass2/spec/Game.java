@@ -66,11 +66,11 @@ public class Game extends JFrame implements GLEventListener {
     public static void main(String[] args) throws FileNotFoundException {
         //Terrain terrain = LevelIO.load(new File(args[0]));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/fiveByFive.json"));
-        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/exampleLevel.json"));
+        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/exampleLevel.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/treeTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/basicLightTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/negativeLightTest.json"));
-        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/simpleBezier.json"));
+        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/simpleBezier.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twinRoads.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twoSpline.json"));
         Camera c = new Camera();
@@ -86,6 +86,8 @@ public class Game extends JFrame implements GLEventListener {
         gl.glLoadIdentity();
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
 
+        // Camera movement/update
+        control.update();
         GLU glu = new GLU();
         double[] pos = camera.getPosition();
         camera.updateHeight(camera.CAMERA_HEIGHT + myTerrain.altitude(pos[0],pos[2]));
@@ -96,13 +98,13 @@ public class Game extends JFrame implements GLEventListener {
                 dir[0],dir[1],dir[2], up[0],up[1],up[2]);
 
         // Render Terrain
-        float terrain[] = {0.96f, 0.67f, 0.55f, 1f};
-        renderTerrain(gl, terrain);
+        renderTerrain(gl);
         renderTrees(gl);
         renderRoads(gl, 30);
 	}
 
-    private void renderTerrain(GL2 gl, float colour[]) {
+    private void renderTerrain(GL2 gl) {
+        float colour[] = {0.96f, 0.67f, 0.55f, 1f};
         gl.glBegin(GL2.GL_TRIANGLES);
         {
             gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, colour,0);
@@ -167,7 +169,7 @@ public class Game extends JFrame implements GLEventListener {
 
         List<Road> roads = myTerrain.roads();
         for(Road r : roads) {
-            double roadWidth = 0.02;//r.width();
+            double roadWidth = r.width();
             float roadCol[]  = r.getRoadCol();
             // set road material + colour
             gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, roadCol,0);
@@ -246,8 +248,7 @@ public class Game extends JFrame implements GLEventListener {
 
 	@Override
 	public void dispose(GLAutoDrawable drawable) {
-		// TODO Auto-generated method stub
-		
+		// Nothing to see here
 	}
 
 	@Override
