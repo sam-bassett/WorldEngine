@@ -12,6 +12,8 @@ public class Tree {
     private double[] myPos;
     private double height, width;
     private float[] trunkColour, leafColour;
+
+    private int trunkTex, leafTex;
     
     public Tree(double x, double y, double z) {
         myPos = new double[3];
@@ -22,6 +24,21 @@ public class Tree {
         width    = DEFAULT_WIDTH;
         trunkColour = new float[]{0.35f, 0.31f, 0.27f, 1f};
         leafColour  = new float[]{0.45f, 0.65f, 0.26f, 1f};
+        trunkTex = -1;
+        leafTex  = -1;
+    }
+
+    public void setTextures(int trunk, int leaf) {
+        trunkTex = trunk;
+        leafTex  = leaf;
+    }
+
+    public int getTrunkTexture() {
+        return trunkTex;
+    }
+
+    public int getLeafTex() {
+        return leafTex;
     }
     
     public double[] getPosition() {

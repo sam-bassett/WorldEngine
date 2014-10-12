@@ -17,6 +17,8 @@ public class Terrain {
     private List<Road> myRoads;
     private float[] mySunlight;
 
+    private int terrainTexture = -1;
+
     /**
      * Create a new terrain
      *
@@ -49,6 +51,26 @@ public class Terrain {
 
     public float[] getSunlight() {
         return mySunlight;
+    }
+
+    public void setTerrainTexture(int texID) {
+        terrainTexture = texID;
+    }
+
+    public int getTerrainTexture() {
+        return terrainTexture;
+    }
+
+    public void setTreeTexture(int trunkID, int leafID) {
+        for(Tree t : trees()) {
+            t.setTextures(trunkID, leafID);
+        }
+    }
+
+    public void setRoadTexture(int texID) {
+        for(Road r : roads()) {
+            r.setRoadTex(texID);
+        }
     }
 
     /**

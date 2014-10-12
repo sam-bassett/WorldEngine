@@ -14,6 +14,8 @@ public class Road {
     private List<Double> myPoints;
     private double myWidth;
     private float[] roadCol;
+
+    private int roadTex = -1;
     
     /** 
      * Create a new road starting at the specified point
@@ -39,6 +41,10 @@ public class Road {
             myPoints.add(spine[i]);
         }
         roadCol = new float[]{0.22f,0.22f,0.22f,1f};
+    }
+
+    public void setRoadTex(int road) {
+        roadTex = road;
     }
 
     public void setRoadCol(float r, float g, float b, float a) {

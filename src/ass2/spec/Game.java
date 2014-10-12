@@ -23,11 +23,7 @@ public class Game extends JFrame implements GLEventListener {
     private Terrain myTerrain;
     private Camera camera;
     private GameController control;
-    private int dx = 0;
-    private int dy = 0;
-    private double scale = 1;
-    private int tr = 0;
-    private int fb = 0;
+    private Texture terrainTex;
 
     public Game(Terrain terrain, Camera c, GameController gc) {
     	super("Assignment 2");
@@ -66,11 +62,11 @@ public class Game extends JFrame implements GLEventListener {
     public static void main(String[] args) throws FileNotFoundException {
         //Terrain terrain = LevelIO.load(new File(args[0]));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/fiveByFive.json"));
-        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/exampleLevel.json"));
+        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/exampleLevel.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/treeTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/basicLightTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/negativeLightTest.json"));
-        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/simpleBezier.json"));
+        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/simpleBezier.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twinRoads.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twoSpline.json"));
         Camera c = new Camera();
@@ -108,10 +104,14 @@ public class Game extends JFrame implements GLEventListener {
         gl.glBegin(GL2.GL_TRIANGLES);
         {
             gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, colour,0);
+            gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_REPEAT);
+            gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+            gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
             ArrayList<Triangle> mesh = myTerrain.getTriangleMesh();
             for(Triangle t : mesh) {
-                gl.glNormal3dv(t.getNormal(),0);
+                gl.glNormal3dv(t.getNormal(), 0);
                 for(Vertex v : t.getVertexList()) {
+                    gl.glTexCoord2d(v.x, v.z);
                     gl.glVertex3d(v.x, v.y, v.z);
                 }
             }
@@ -272,6 +272,20 @@ public class Game extends JFrame implements GLEventListener {
         gl.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, GL2.GL_TRUE);
         // Enable normalisation
         gl.glEnable(GL2.GL_NORMALIZE);
+
+        terrainTex = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/terrain.bmp");
+        /*
+        // Load textures - terrain, trunk, leaf, road
+        Texture textures[] = new Texture[4];
+        textures[0] = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/terrain.bmp");
+        myTerrain.setTerrainTexture(textures[0].getTextureID());
+
+        textures[1] = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/trunk.bmp");
+        textures[2] = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/leaf.bmp");
+        myTerrain.setTreeTexture(textures[1].getTextureID(), textures[2].getTextureID());
+        textures[3] = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/road.bmp");
+        myTerrain.setRoadTexture(textures[3].getTextureID());
+        */
 	}
 
 	@Override

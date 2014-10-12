@@ -14,11 +14,12 @@ import java.io.IOException;
  * Created by sdba660 on 5/10/2014.
  * Adapted from malcolmr's MyTexture class
  */
-public class TextureManager {
+public class Texture {
     private int[] textureID;
 
-    public TextureManager(GL2 gl, String fileName) {
+    public Texture(GL2 gl, String fileName) {
         TextureData data = null;
+        textureID = new int[1];
         try {
             // Read in texture file
             File f = new File(fileName);
@@ -53,6 +54,10 @@ public class TextureManager {
 
     public int getTextureID() {
         return textureID[0];
+    }
+
+    public void bindTexture(GL2 gl) {
+        gl.glBindTexture(GL.GL_TEXTURE_2D, textureID[0]);
     }
 
     public void releaseTexture(GL2 gl) {
