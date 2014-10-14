@@ -104,15 +104,50 @@ public class Game extends JFrame implements GLEventListener {
         gl.glBegin(GL2.GL_TRIANGLES);
         {
             gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, colour,0);
+            terrainTex.bindTexture(gl);
             gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_REPEAT);
             gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
             gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
             ArrayList<Triangle> mesh = myTerrain.getTriangleMesh();
+            int i = 0;
             for(Triangle t : mesh) {
+                if (i > 5) {
+                    i = 0;
+                }
                 gl.glNormal3dv(t.getNormal(), 0);
                 for(Vertex v : t.getVertexList()) {
-                    gl.glTexCoord2d(v.x, v.z);
+                    /* for vertices in triangle quad:
+                        v0  v1
+                        v2  v3
+                        order is (v1, v0, v2), (v1, v2, v3)
+                        so texture should be:
+                        (1,0)(0,0)(0,1), (1,0)(0,1)(1,1)
+                    */
+                    switch (i) {
+                        case 0:
+                            gl.glTexCoord2d(1, 0);
+                            break;
+                        case 1:
+                            gl.glTexCoord2d(0, 0);
+                            break;
+                        case 2:
+                            gl.glTexCoord2d(0, 1);
+                            break;
+                        case 3:
+                            gl.glTexCoord2d(1, 0);
+                            break;
+                        case 4:
+                            gl.glTexCoord2d(0, 1);
+                            break;
+                        case 5:
+                            gl.glTexCoord2d(1, 1);
+                            break;
+                        default:
+                            System.err.println("Something wrong in texture rendering");
+                            break;
+                    }
                     gl.glVertex3d(v.x, v.y, v.z);
+                    i++;
                 }
             }
         }
