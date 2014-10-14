@@ -23,7 +23,7 @@ public class Game extends JFrame implements GLEventListener {
     private Terrain myTerrain;
     private Camera camera;
     private GameController control;
-    private Texture terrainTex;
+    //private Texture terrainTex;
 
     public Game(Terrain terrain, Camera c, GameController gc) {
     	super("Assignment 2");
@@ -104,7 +104,7 @@ public class Game extends JFrame implements GLEventListener {
         gl.glBegin(GL2.GL_TRIANGLES);
         {
             gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, colour,0);
-            terrainTex.bindTexture(gl);
+            //terrainTex.bindTexture(gl);
             gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_REPEAT);
             gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
             gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
@@ -308,7 +308,7 @@ public class Game extends JFrame implements GLEventListener {
         // Enable normalisation
         gl.glEnable(GL2.GL_NORMALIZE);
 
-        terrainTex = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/terrain.bmp");
+        //terrainTex = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/terrain.bmp");
         /*
         // Load textures - terrain, trunk, leaf, road
         Texture textures[] = new Texture[4];
