@@ -77,36 +77,86 @@ public class Game extends JFrame implements GLEventListener {
 
     @Override
     public void init(GLAutoDrawable drawable) {
+//        GL2 gl = drawable.getGL().getGL2();
+//        gl.glClearColor(1f, 1f, 1f, 0f);
+//
+//        gl.glEnable(GL2.GL_DEPTH_TEST);
+//        gl.glEnable(GL2.GL_LIGHTING);
+//        // White diffuse, specular lighting (from notes)
+//        float lightDifAndSpec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+//        //float lightDir[] = myTerrain.getSunlight();
+//        float lightDir[] = {-1.0f,1f,0f,0f};
+//        // TODO not a hunjie on this light position, see negativeSunlightTest
+//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightDir, 0);
+//
+//        float globAmb[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+//        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmb,0); // Global ambient light.
+//
+//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightDifAndSpec,0);
+//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightDifAndSpec,0);
+//
+//        // Turn on light0
+//        gl.glEnable(GL2.GL_LIGHT0);
+//        gl.glLightModeli(GL2.GL_LIGHT_MODEL_TWO_SIDE, GL2.GL_TRUE);
+//        gl.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, GL2.GL_TRUE);
+//        // Enable normalisation
+//        gl.glEnable(GL2.GL_NORMALIZE);
+//
+//        //terrainTex = new MyTexture(gl, textureFile, textureExt);
+//
+//        terrainTex = new MyTexture(gl, "res/grass.bmp", "bmp");
+//        gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
+//        gl.glEnable(GL.GL_TEXTURE_2D);
         GL2 gl = drawable.getGL().getGL2();
         gl.glClearColor(1f, 1f, 1f, 0f);
 
-        gl.glEnable(GL2.GL_DEPTH_TEST);
+        //gl.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+        gl.glEnable(GL2.GL_DEPTH_TEST); // Enable depth testing.
+
+        // Turn on OpenGL lighting.
         gl.glEnable(GL2.GL_LIGHTING);
-        // White diffuse, specular lighting (from notes)
+
+        // Light property vectors.
+        float lightAmb[] = { 0.0f, 0.0f, 0.0f, 1.0f };
         float lightDifAndSpec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-        //float lightDir[] = myTerrain.getSunlight();
-        float lightDir[] = {-1.0f,1f,0f,0f};
-        // TODO not a hunjie on this light position, see negativeSunlightTest
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightDir, 0);
-
+        float lightPos[] = { 0.0f, 1.5f, 3.0f, 0.0f };
         float globAmb[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmb,0); // Global ambient light.
 
+        // Light properties.
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, lightAmb,0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightDifAndSpec,0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightDifAndSpec,0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightPos,0);
 
-        // Turn on light0
-        gl.glEnable(GL2.GL_LIGHT0);
-        gl.glLightModeli(GL2.GL_LIGHT_MODEL_TWO_SIDE, GL2.GL_TRUE);
-        gl.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, GL2.GL_TRUE);
-        // Enable normalisation
-        gl.glEnable(GL2.GL_NORMALIZE);
+        gl.glEnable(GL2.GL_LIGHT0); // Enable particular light source.
+        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmb,0); // Global ambient light.
+        gl.glLightModeli(GL2.GL_LIGHT_MODEL_TWO_SIDE, GL2.GL_TRUE); // Enable two-sided lighting.
+        gl.glLightModeli(GL2.GL_LIGHT_MODEL_COLOR_CONTROL, GL2.GL_SEPARATE_SPECULAR_COLOR);
 
-        //terrainTex = new MyTexture(gl, textureFile, textureExt);
 
+        // Material property vectors.
+
+        float matAmbAndDif2[] = {0.0f, 0.9f, 0.0f, 1.0f};
+        float matSpec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float matShine[] = { 50.0f };
+
+        // Material property vectors.
+        float matAmbAndDif1[] = {1.0f, 1.0f, 1.0f, 1.0f};
+
+        // Material properties.
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDif1,0);
+        gl.glMaterialfv(GL2.GL_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, matAmbAndDif2,0);
+        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_SPECULAR, matSpec,0);
+        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_SHININESS, matShine,0);
+
+        // Create texture ids.
         terrainTex = new MyTexture(gl, "res/grass.bmp", "bmp");
+        // Specify how texture values combine with current surface color values.
         gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
-        gl.glEnable(GL.GL_TEXTURE_2D);
+
+        // Turn on OpenGL texturing.
+        gl.glEnable(GL2.GL_TEXTURE_2D);
+
         /*
         // Load textures - terrain, trunk, leaf, road
         Texture textures[] = new Texture[4];
@@ -153,7 +203,7 @@ public class Game extends JFrame implements GLEventListener {
             float colour[] = {0.96f, 0.67f, 0.55f, 1f};
             gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, colour,0);
             gl.glTexCoord2d(0,0);
-            gl.glVertex3d(2,1,-1);
+            gl.glVertex3d(2, 1, -1);
             gl.glTexCoord2d(1,0);
             gl.glVertex3d(2,0,-1);
             gl.glTexCoord2d(1,1);
