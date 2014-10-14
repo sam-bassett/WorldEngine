@@ -23,7 +23,7 @@ public class Game extends JFrame implements GLEventListener {
     private Terrain myTerrain;
     private Camera camera;
     private GameController control;
-    //private Texture terrainTex;
+    private Texture terrainTex;
 
     public Game(Terrain terrain, Camera c, GameController gc) {
     	super("Assignment 2");
@@ -75,6 +75,51 @@ public class Game extends JFrame implements GLEventListener {
         game.run();
     }
 
+    @Override
+    public void init(GLAutoDrawable drawable) {
+        GL2 gl = drawable.getGL().getGL2();
+        gl.glClearColor(1f, 1f, 1f, 0f);
+
+        gl.glEnable(GL2.GL_DEPTH_TEST);
+        gl.glEnable(GL2.GL_LIGHTING);
+        // White diffuse, specular lighting (from notes)
+        float lightDifAndSpec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float lightDir[] = myTerrain.getSunlight();
+        // TODO not a hunjie on this light position, see negativeSunlightTest
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightDir, 0);
+
+        float globAmb[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmb,0); // Global ambient light.
+
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightDifAndSpec,0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightDifAndSpec,0);
+
+        // Turn on light0
+        gl.glEnable(GL2.GL_LIGHT0);
+        gl.glLightModeli(GL2.GL_LIGHT_MODEL_TWO_SIDE, GL2.GL_TRUE);
+        gl.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, GL2.GL_TRUE);
+        // Enable normalisation
+        gl.glEnable(GL2.GL_NORMALIZE);
+
+        //terrainTex = new MyTexture(gl, textureFile, textureExt);
+
+        terrainTex = new Texture(gl, "res/grass.bmp");
+        gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
+        gl.glEnable(GL.GL_TEXTURE_2D);
+        /*
+        // Load textures - terrain, trunk, leaf, road
+        Texture textures[] = new Texture[4];
+        textures[0] = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/terrain.bmp");
+        myTerrain.setTerrainTexture(textures[0].getTextureID());
+
+        textures[1] = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/trunk.bmp");
+        textures[2] = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/leaf.bmp");
+        myTerrain.setTreeTexture(textures[1].getTextureID(), textures[2].getTextureID());
+        textures[3] = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/road.bmp");
+        myTerrain.setRoadTexture(textures[3].getTextureID());
+        */
+    }
+
 	@Override
 	public void display(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
@@ -94,9 +139,31 @@ public class Game extends JFrame implements GLEventListener {
                 dir[0],dir[1],dir[2], up[0],up[1],up[2]);
 
         // Render Terrain
-        renderTerrain(gl);
-        renderTrees(gl);
-        renderRoads(gl, 30);
+        gl.glBegin(GL2.GL_POLYGON);
+        {
+            /*
+            v0          v1
+
+            v2          v3
+            (2,1,-1)   (2,1,1)
+
+            (2,0,-1)   (2,0,1)
+             */
+            float colour[] = {0.96f, 0.67f, 0.55f, 1f};
+            gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, colour,0);
+            gl.glTexCoord2d(0,0);
+            gl.glVertex3d(2,1,-1);
+            gl.glTexCoord2d(1,0);
+            gl.glVertex3d(2,0,-1);
+            gl.glTexCoord2d(1,1);
+            gl.glVertex3d(2,0,1);
+            gl.glTexCoord2d(0,1);
+            gl.glVertex3d(2,1,1);
+        }
+        gl.glEnd();
+//        renderTerrain(gl);
+//        renderTrees(gl);
+//        renderRoads(gl, 30);
 	}
 
     private void renderTerrain(GL2 gl) {
@@ -104,15 +171,13 @@ public class Game extends JFrame implements GLEventListener {
         gl.glBegin(GL2.GL_TRIANGLES);
         {
             gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, colour,0);
-            //terrainTex.bindTexture(gl);
-            gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_REPEAT);
-            gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
-            gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
             ArrayList<Triangle> mesh = myTerrain.getTriangleMesh();
+
             int i = 0;
             for(Triangle t : mesh) {
                 if (i > 5) {
                     i = 0;
+                    //System.exit(i);
                 }
                 gl.glNormal3dv(t.getNormal(), 0);
                 for(Vertex v : t.getVertexList()) {
@@ -122,22 +187,23 @@ public class Game extends JFrame implements GLEventListener {
                         order is (v1, v0, v2), (v1, v2, v3)
                         so texture should be:
                         (1,0)(0,0)(0,1), (1,0)(0,1)(1,1)
-                    */
+                        */
+
                     switch (i) {
                         case 0:
-                            gl.glTexCoord2d(1, 0);
+                            gl.glTexCoord2d(0, 1);
                             break;
                         case 1:
                             gl.glTexCoord2d(0, 0);
                             break;
                         case 2:
-                            gl.glTexCoord2d(0, 1);
-                            break;
-                        case 3:
                             gl.glTexCoord2d(1, 0);
                             break;
-                        case 4:
+                        case 3:
                             gl.glTexCoord2d(0, 1);
+                            break;
+                        case 4:
+                            gl.glTexCoord2d(1, 0);
                             break;
                         case 5:
                             gl.glTexCoord2d(1, 1);
@@ -146,10 +212,12 @@ public class Game extends JFrame implements GLEventListener {
                             System.err.println("Something wrong in texture rendering");
                             break;
                     }
+                    System.out.println(i+": ("+v.x+","+v.y+","+v.z+")");
                     gl.glVertex3d(v.x, v.y, v.z);
                     i++;
                 }
             }
+
         }
         gl.glEnd();
     }
@@ -284,43 +352,6 @@ public class Game extends JFrame implements GLEventListener {
 	@Override
 	public void dispose(GLAutoDrawable drawable) {
 		// Nothing to see here
-	}
-
-	@Override
-	public void init(GLAutoDrawable drawable) {
-        GL2 gl = drawable.getGL().getGL2();
-        gl.glClearColor(1f, 1f, 1f, 0f);
-
-        gl.glEnable(GL2.GL_DEPTH_TEST);
-        gl.glEnable(GL2.GL_LIGHTING);
-        // White diffuse, specular lighting (from notes)
-        float lightDifAndSpec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-        float lightDir[] = myTerrain.getSunlight();
-        // TODO not a hunjie on this light position, see negativeSunlightTest
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightDir, 0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightDifAndSpec,0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightDifAndSpec,0);
-
-        // Turn on light0
-        gl.glEnable(GL2.GL_LIGHT0);
-        gl.glLightModeli(GL2.GL_LIGHT_MODEL_TWO_SIDE, GL2.GL_TRUE);
-        gl.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, GL2.GL_TRUE);
-        // Enable normalisation
-        gl.glEnable(GL2.GL_NORMALIZE);
-
-        //terrainTex = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/terrain.bmp");
-        /*
-        // Load textures - terrain, trunk, leaf, road
-        Texture textures[] = new Texture[4];
-        textures[0] = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/terrain.bmp");
-        myTerrain.setTerrainTexture(textures[0].getTextureID());
-
-        textures[1] = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/trunk.bmp");
-        textures[2] = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/leaf.bmp");
-        myTerrain.setTreeTexture(textures[1].getTextureID(), textures[2].getTextureID());
-        textures[3] = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/road.bmp");
-        myTerrain.setRoadTexture(textures[3].getTextureID());
-        */
 	}
 
 	@Override
