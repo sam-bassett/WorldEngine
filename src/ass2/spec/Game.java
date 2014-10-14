@@ -23,7 +23,7 @@ public class Game extends JFrame implements GLEventListener {
     private Terrain myTerrain;
     private Camera camera;
     private GameController control;
-    private Texture terrainTex;
+    private MyTexture terrainTex;
 
     public Game(Terrain terrain, Camera c, GameController gc) {
     	super("Assignment 2");
@@ -62,13 +62,13 @@ public class Game extends JFrame implements GLEventListener {
     public static void main(String[] args) throws FileNotFoundException {
         //Terrain terrain = LevelIO.load(new File(args[0]));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/fiveByFive.json"));
-        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/exampleLevel.json"));
+        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/exampleLevel.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/treeTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/basicLightTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/negativeLightTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/simpleBezier.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twinRoads.json"));
-        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twoSpline.json"));
+        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twoSpline.json"));
         Camera c = new Camera();
         GameController gc = new GameController(c);
         Game game = new Game(terrain, c, gc);
@@ -84,7 +84,8 @@ public class Game extends JFrame implements GLEventListener {
         gl.glEnable(GL2.GL_LIGHTING);
         // White diffuse, specular lighting (from notes)
         float lightDifAndSpec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-        float lightDir[] = myTerrain.getSunlight();
+        //float lightDir[] = myTerrain.getSunlight();
+        float lightDir[] = {-1.0f,1f,0f,0f};
         // TODO not a hunjie on this light position, see negativeSunlightTest
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightDir, 0);
 
@@ -103,7 +104,7 @@ public class Game extends JFrame implements GLEventListener {
 
         //terrainTex = new MyTexture(gl, textureFile, textureExt);
 
-        terrainTex = new Texture(gl, "res/grass.bmp");
+        terrainTex = new MyTexture(gl, "res/grass.bmp", "bmp");
         gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
         gl.glEnable(GL.GL_TEXTURE_2D);
         /*
