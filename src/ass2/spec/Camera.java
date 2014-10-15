@@ -15,7 +15,7 @@ public class Camera {
 
     public Camera() {
         position    = new double[]{0,CAMERA_HEIGHT,0}; // x, y, z (place at height 0.2 above plane)
-        rotation    = 0;                    // in degrees from x axis
+        rotation    = 45;                    // in degrees from x axis
         up          = new double[]{0,1,0};   // this probs shouldn't change in base game
     }
 

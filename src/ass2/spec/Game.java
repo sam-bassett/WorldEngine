@@ -23,7 +23,7 @@ public class Game extends JFrame implements GLEventListener {
     private Terrain myTerrain;
     private Camera camera;
     private GameController control;
-    private Texture terrainTex;
+    private Texture terrainTex, roadTex;
 
     public Game(Terrain terrain, Camera c, GameController gc) {
     	super("Assignment 2");
@@ -62,10 +62,10 @@ public class Game extends JFrame implements GLEventListener {
     public static void main(String[] args) throws FileNotFoundException {
         //Terrain terrain = LevelIO.load(new File(args[0]));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/fiveByFive.json"));
-        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/exampleLevel.json"));
+        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/exampleLevel.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/treeTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/basicLightTest.json"));
-        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/negativeLightTest.json"));
+        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/negativeLightTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/simpleBezier.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twinRoads.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twoSpline.json"));
@@ -101,23 +101,10 @@ public class Game extends JFrame implements GLEventListener {
         // Enable normalisation
         gl.glEnable(GL2.GL_NORMALIZE);
 
-        //terrainTex = new MyTexture(gl, textureFile, textureExt);
-
-        terrainTex = new Texture(gl, "res/grass.bmp");
+        terrainTex = new Texture(gl, "res/terrain.bmp");
+        roadTex = new Texture(gl, "res/road.jpg");
         gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
         gl.glEnable(GL.GL_TEXTURE_2D);
-        /*
-        // Load textures - terrain, trunk, leaf, road
-        Texture textures[] = new Texture[4];
-        textures[0] = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/terrain.bmp");
-        myTerrain.setTerrainTexture(textures[0].getTextureID());
-
-        textures[1] = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/trunk.bmp");
-        textures[2] = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/leaf.bmp");
-        myTerrain.setTreeTexture(textures[1].getTextureID(), textures[2].getTextureID());
-        textures[3] = new Texture(gl, "/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/res/road.bmp");
-        myTerrain.setRoadTexture(textures[3].getTextureID());
-        */
     }
 
 	@Override
@@ -139,35 +126,15 @@ public class Game extends JFrame implements GLEventListener {
                 dir[0],dir[1],dir[2], up[0],up[1],up[2]);
 
         // Render Terrain
-        gl.glBegin(GL2.GL_POLYGON);
-        {
-            /*
-            v0          v1
-
-            v2          v3
-            (2,1,-1)   (2,1,1)
-
-            (2,0,-1)   (2,0,1)
-             */
-            float colour[] = {0.96f, 0.67f, 0.55f, 1f};
-            gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, colour,0);
-            gl.glTexCoord2d(0,0);
-            gl.glVertex3d(2,1,-1);
-            gl.glTexCoord2d(1,0);
-            gl.glVertex3d(2,0,-1);
-            gl.glTexCoord2d(1,1);
-            gl.glVertex3d(2,0,1);
-            gl.glTexCoord2d(0,1);
-            gl.glVertex3d(2,1,1);
-        }
-        gl.glEnd();
-//        renderTerrain(gl);
-//        renderTrees(gl);
-//        renderRoads(gl, 30);
+        renderTerrain(gl);
+        renderTrees(gl);
+        renderRoads(gl, 30);
 	}
 
     private void renderTerrain(GL2 gl) {
         float colour[] = {0.96f, 0.67f, 0.55f, 1f};
+        // Bind terrain texture
+        gl.glBindTexture(GL.GL_TEXTURE_2D, terrainTex.getTextureID());
         gl.glBegin(GL2.GL_TRIANGLES);
         {
             gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, colour,0);
@@ -177,7 +144,6 @@ public class Game extends JFrame implements GLEventListener {
             for(Triangle t : mesh) {
                 if (i > 5) {
                     i = 0;
-                    //System.exit(i);
                 }
                 gl.glNormal3dv(t.getNormal(), 0);
                 for(Vertex v : t.getVertexList()) {
@@ -188,7 +154,8 @@ public class Game extends JFrame implements GLEventListener {
                         so texture should be:
                         (1,0)(0,0)(0,1), (1,0)(0,1)(1,1)
                         */
-
+                    // Yes, this is a bad way to do it.
+                    // No, I don't have time to do it better.
                     switch (i) {
                         case 0:
                             gl.glTexCoord2d(0, 1);
@@ -209,10 +176,9 @@ public class Game extends JFrame implements GLEventListener {
                             gl.glTexCoord2d(1, 1);
                             break;
                         default:
-                            System.err.println("Something wrong in texture rendering");
+                            System.err.println("Something wrong in terrain texturing");
                             break;
                     }
-                    System.out.println(i+": ("+v.x+","+v.y+","+v.z+")");
                     gl.glVertex3d(v.x, v.y, v.z);
                     i++;
                 }
@@ -264,7 +230,7 @@ public class Game extends JFrame implements GLEventListener {
     }
 
     private void renderRoads(GL2 gl, int segments) {
-        //myTerrain.renderRoads(gl, segments);
+        gl.glBindTexture(GL.GL_TEXTURE_2D, roadTex.getTextureID());
         if (segments <= 0) {
             System.out.println("Segments must be a positive (nonzero) integer");
             return;
@@ -307,12 +273,32 @@ public class Game extends JFrame implements GLEventListener {
                 int negSideFace[] = {2, 0, 4, 6};
                 int backFace[] = {5, 7, 6, 4};
                 // Render all faces of extrusion
-                // topFace
+                // topFace - only one needing texture
                 gl.glBegin(GL2.GL_QUADS);
                 // compute normal:
                 gl.glNormal3dv(MathUtils.normal(vertices[0], vertices[1], vertices[4]), 0);
+                int j = 0;
+                // bottom left, bottom right, top right, top left
                 for (int d : topFace) {
+                    switch (j) {
+                        case 0:
+                            gl.glTexCoord2d(0,1);
+                            break;
+                        case 1:
+                            gl.glTexCoord2d(1,1);
+                            break;
+                        case 2:
+                            gl.glTexCoord2d(1,0);
+                            break;
+                        case 3:
+                            gl.glTexCoord2d(0,0);
+                            break;
+                        default:
+                            System.err.println("Error in road texturing");
+                            break;
+                    }
                     gl.glVertex3dv(vertices[d], 0);
+                    j++;
                 }
                 gl.glEnd();
                 // frontFace:
