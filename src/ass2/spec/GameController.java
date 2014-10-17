@@ -9,15 +9,13 @@ import java.awt.event.KeyListener;
  * Created by sam on 5/10/2014.
  */
 public class GameController implements KeyListener {
-    private Camera c;
     private boolean[] keyStates;
 
-    public GameController(Camera c) {
-        this.c = c;
+    public GameController() {
         keyStates = new boolean[256];
     }
 
-    public void update() {
+    public void update(Camera c, Terrain t) {
         // TODO think about scaling this, currently @ 60fps it's very fast
         if (keyStates[KeyEvent.VK_UP])
             c.forwardStep(0.1);
@@ -37,6 +35,11 @@ public class GameController implements KeyListener {
             c.sideStep(-0.1);
         if (keyStates[KeyEvent.VK_ESCAPE])
             System.exit(0);
+        if (keyStates[KeyEvent.VK_N]) {
+            t.isNight = !t.isNight;
+            keyStates[KeyEvent.VK_N] = false;
+            System.out.println("night switched: " + t.isNight);
+        }
     }
 
     @Override
@@ -46,7 +49,12 @@ public class GameController implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        keyStates[e.getKeyCode()] = true;
+        if (e.getKeyCode() == KeyEvent.VK_N && keyStates[KeyEvent.VK_N]) {
+            System.out.println("Repeat detected");
+            keyStates[KeyEvent.VK_N] = false;
+        } else {
+            keyStates[e.getKeyCode()] = true;
+        }
     }
 
     @Override

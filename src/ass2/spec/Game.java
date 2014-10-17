@@ -62,15 +62,15 @@ public class Game extends JFrame implements GLEventListener {
     public static void main(String[] args) throws FileNotFoundException {
         //Terrain terrain = LevelIO.load(new File(args[0]));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/fiveByFive.json"));
-        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/exampleLevel.json"));
+        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/exampleLevel.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/treeTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/basicLightTest.json"));
-        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/negativeLightTest.json"));
+        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/negativeLightTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/simpleBezier.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twinRoads.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twoSpline.json"));
         Camera c = new Camera();
-        GameController gc = new GameController(c);
+        GameController gc = new GameController();
         Game game = new Game(terrain, c, gc);
         game.run();
     }
@@ -100,6 +100,9 @@ public class Game extends JFrame implements GLEventListener {
         gl.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, GL2.GL_TRUE);
         // Enable normalisation
         gl.glEnable(GL2.GL_NORMALIZE);
+        // Enable blending
+        gl.glEnable(GL.GL_BLEND);
+        gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
         terrainTex = new Texture(gl, "res/terrain.bmp");
         roadTex = new Texture(gl, "res/road.jpg");
@@ -115,7 +118,7 @@ public class Game extends JFrame implements GLEventListener {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
 
         // Camera movement/update
-        control.update();
+        control.update(camera, myTerrain);
         GLU glu = new GLU();
         double[] pos = camera.getPosition();
         camera.updateHeight(camera.CAMERA_HEIGHT + myTerrain.altitude(pos[0],pos[2]));
@@ -124,12 +127,43 @@ public class Game extends JFrame implements GLEventListener {
         double[] up  = camera.getUpVector();
         glu.gluLookAt(pos[0],pos[1],pos[2],
                 dir[0],dir[1],dir[2], up[0],up[1],up[2]);
+        if(myTerrain.isNight) {
+            // Enable torch light
+            float torchLight[] = new float[]{0.99f, 0.82f, 0.29f, 1.0f};
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, torchLight,0);
+            double rotation = camera.getRotation();
+            float fPos[] = new float[]{(float) (pos[0] + 0.1*Math.cos(Math.toRadians(rotation))),
+                    (float) pos[1], (float) (pos[2] + 0.1*Math.sin(Math.toRadians(rotation))), 1.0f};
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, fPos, 0);
+            gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, new float[]{0.1f,0.1f,0.1f,1.0f},0);
+            gl.glLightf(GL2.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, 0.2f);
+            gl.glClearColor(0f,0f,0f,1f);
+            renderLight(gl, fPos);
+        } else {
+            float lightDifAndSpec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+            float lightDir[] = myTerrain.getSunlight();
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightDir, 0);
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightDifAndSpec,0);
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightDifAndSpec,0);
+            gl.glClearColor(1f,1f,1f,1f);
+        }
 
         // Render Terrain
         renderTerrain(gl);
         renderTrees(gl);
         renderRoads(gl, 30);
 	}
+
+    private void renderLight(GL2 gl, float[] lightPos) {
+        GLUT glut = new GLUT();
+        // rotate and translate accordingly
+        gl.glPushMatrix();
+        gl.glTranslated(lightPos[0],lightPos[1],lightPos[2]);
+        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE,
+                new float[]{0.99f, 0.82f, 0.29f, 1.0f},0);
+        glut.glutSolidSphere(0.01,20,20);
+        gl.glPopMatrix();
+    }
 
     private void renderTerrain(GL2 gl) {
         float colour[] = {0.96f, 0.67f, 0.55f, 1f};
