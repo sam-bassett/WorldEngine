@@ -1,0 +1,7 @@
+I initially incorporated WSAD-style movement - they are used as forward, back, left and right, while left and right
+on the arrow keys turn the camera.
+
+I have implemented night mode, which can be activated by pressing 'n' on the keyboard. Rather than a torch, I
+went for a floating orb (more like a fantasy game).
+
+There is also the ability to change the time of day by pressing the open or close brace key ('[' or ']')

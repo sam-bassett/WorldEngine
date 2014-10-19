@@ -18,6 +18,7 @@ public class Terrain {
     private float[] mySunlight;
 
     public boolean isNight = false;
+    private double time = 12.00;
 
     /**
      * Create a new terrain
@@ -50,26 +51,15 @@ public class Terrain {
     }
 
     public float[] getSunlight() {
-        return mySunlight;
-    }
-
-    public void setTreeTexture(int trunkID, int leafID) {
-        for(Tree t : trees()) {
-            t.setTextures(trunkID, leafID);
-        }
-    }
-
-    public void setRoadTexture(int texID) {
-        for(Road r : roads()) {
-            r.setRoadTex(texID);
-        }
+        double sVec[] = timeToSunVector(time);
+        return new float[]{(float)sVec[0], (float)sVec[1], (float)sVec[2]};
     }
 
     /**
-     * Set the sunlight direction. 
-     * 
+     * Set the sunlight direction.
+     *
      * Note: the sun should be treated as a directional light, without a position
-     * 
+     *
      * @param dx
      * @param dy
      * @param dz
@@ -77,7 +67,78 @@ public class Terrain {
     public void setSunlightDir(float dx, float dy, float dz) {
         mySunlight[0] = dx;
         mySunlight[1] = dy;
-        mySunlight[2] = dz;        
+        mySunlight[2] = dz;
+        double nTime = sunVectorToTime(new double[]{(double) dx, (double) dy, (double) dz});
+        setTime(nTime);
+    }
+
+    public void setTime(double newTime) {
+        time = newTime;
+        if (time > 24.0) {
+            time -= 24;
+        }
+        if (time < 0.0) {
+            time += 24;
+        }
+        // set night if time is during evening
+        isNight = (time > 18.0 || time < 6.0);
+    }
+
+    public double getTime() {
+        return time;
+    }
+
+    /**
+     * Add <increment> hours to clock
+     * @param increment number of hours to add
+     */
+    public void tickClock(double increment) {
+        setTime(time + increment);
+    }
+
+    /**
+     * From an input light vector, get the current time of day
+     * @param lightPos the vector to the sun
+     * @return a double containing the current time (note that time is of format hh.mm where mm range from 0..99
+     *              rather than 0..59)
+     */
+    public double sunVectorToTime(double[] lightPos) {
+        double vTime;
+        // directly overhead = 12.00
+        if (lightPos[0] == 0) {
+            return 12.00;
+        } else {
+            // tan(x) = o/a
+            double angle = Math.toDegrees(Math.atan(lightPos[1]/lightPos[0]));
+            if (angle > 0) {
+                vTime = 6.0+(angle/90.0)*6; // 6 hours in morning
+            } else {
+                vTime = 18.0+(angle/90.0)*6; // since angle negative
+            }
+        }
+        return vTime;
+    }
+
+    public double[] timeToSunVector(double time) {
+        if (Math.floor(time) == 12.0) {
+            return new double[]{0,1,0};
+        } else if (isNight) {
+            return new double[]{0,-1,0};
+        } else {
+            double angle, rAngle, x, y;
+            if (time < 12.0 && time > 6.0) {
+                angle = ((time - 6.0)/6.0)*90;
+                rAngle = Math.toRadians(angle);
+                x = Math.sqrt(2)*Math.cos(rAngle);
+                y = Math.sqrt(2)*Math.sin(rAngle);
+            } else {
+                angle = ((time - 18.0)/6.0)*90;
+                rAngle = Math.toRadians(angle);
+                x = -Math.sqrt(2)*Math.cos(rAngle);
+                y = -Math.sqrt(2)*Math.sin(rAngle);
+            }
+            return new double[]{x, y, 0};
+        }
     }
     
     /**

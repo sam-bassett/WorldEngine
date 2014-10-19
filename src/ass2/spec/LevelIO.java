@@ -1,16 +1,11 @@
 package ass2.spec;
 
-import java.awt.Dimension;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Reader;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
+import java.awt.*;
+import java.io.*;
 
 /**
  * COMMENT: Comment LevelIO 
@@ -41,6 +36,7 @@ public class LevelIO {
         float dy = (float)jsonSun.getDouble(1);
         float dz = (float)jsonSun.getDouble(2);
         terrain.setSunlightDir(dx, dy, dz);
+        terrain.setTime(terrain.sunVectorToTime(new double[]{dx, dy, dz}));
        
         JSONArray jsonAltitude = jsonTerrain.getJSONArray("altitude");
         for (int i = 0; i < jsonAltitude.length(); i++) {

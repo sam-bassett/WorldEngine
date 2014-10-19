@@ -60,9 +60,10 @@ public class Game extends JFrame implements GLEventListener {
      * @throws FileNotFoundException
      */
     public static void main(String[] args) throws FileNotFoundException {
-        //Terrain terrain = LevelIO.load(new File(args[0]));
+        Terrain terrain = LevelIO.load(new File(args[0]));
+        // For testing:
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/fiveByFive.json"));
-        Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/exampleLevel.json"));
+        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/exampleLevel.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/treeTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/basicLightTest.json"));
         //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/negativeLightTest.json"));
@@ -127,6 +128,15 @@ public class Game extends JFrame implements GLEventListener {
         double[] up  = camera.getUpVector();
         glu.gluLookAt(pos[0],pos[1],pos[2],
                 dir[0],dir[1],dir[2], up[0],up[1],up[2]);
+        handleLight(gl, pos);
+
+        // Render Terrain
+        renderTerrain(gl);
+        renderTrees(gl);
+        renderRoads(gl, 30);
+	}
+
+    private void handleLight(GL2 gl, double[] pos) {
         if(myTerrain.isNight) {
             // Enable torch light
             float torchLight[] = new float[]{0.99f, 0.82f, 0.29f, 1.0f};
@@ -140,6 +150,7 @@ public class Game extends JFrame implements GLEventListener {
             gl.glClearColor(0f,0f,0f,1f);
             renderLight(gl, fPos);
         } else {
+            // If not night mode, restore settings.
             float lightDifAndSpec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
             float lightDir[] = myTerrain.getSunlight();
             gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightDir, 0);
@@ -147,12 +158,7 @@ public class Game extends JFrame implements GLEventListener {
             gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightDifAndSpec,0);
             gl.glClearColor(1f,1f,1f,1f);
         }
-
-        // Render Terrain
-        renderTerrain(gl);
-        renderTrees(gl);
-        renderRoads(gl, 30);
-	}
+    }
 
     private void renderLight(GL2 gl, float[] lightPos) {
         GLUT glut = new GLUT();
@@ -169,11 +175,10 @@ public class Game extends JFrame implements GLEventListener {
         float colour[] = {0.96f, 0.67f, 0.55f, 1f};
         // Bind terrain texture
         gl.glBindTexture(GL.GL_TEXTURE_2D, terrainTex.getTextureID());
+        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, colour,0);
         gl.glBegin(GL2.GL_TRIANGLES);
         {
-            gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, colour,0);
             ArrayList<Triangle> mesh = myTerrain.getTriangleMesh();
-
             int i = 0;
             for(Triangle t : mesh) {
                 if (i > 5) {

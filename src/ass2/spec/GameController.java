@@ -35,10 +35,13 @@ public class GameController implements KeyListener {
             c.sideStep(-0.1);
         if (keyStates[KeyEvent.VK_ESCAPE])
             System.exit(0);
+        if (keyStates[KeyEvent.VK_OPEN_BRACKET])
+            t.tickClock(-0.2);
+        if (keyStates[KeyEvent.VK_CLOSE_BRACKET])
+            t.tickClock(0.2);
         if (keyStates[KeyEvent.VK_N]) {
             t.isNight = !t.isNight;
             keyStates[KeyEvent.VK_N] = false;
-            System.out.println("night switched: " + t.isNight);
         }
     }
 
@@ -49,7 +52,9 @@ public class GameController implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_N && keyStates[KeyEvent.VK_N]) {
+        int code = e.getKeyCode();
+        if (code == KeyEvent.VK_N && keyStates[KeyEvent.VK_N]) {
+            // Stop key cycling too fast
             System.out.println("Repeat detected");
             keyStates[KeyEvent.VK_N] = false;
         } else {
