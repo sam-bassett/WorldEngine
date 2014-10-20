@@ -19,7 +19,7 @@ public class Road {
      * Create a new road starting at the specified point
      */
     public Road(double width, double x0, double y0) {
-        myWidth = width/5;
+        myWidth = width;
         myPoints = new ArrayList<Double>();
         myPoints.add(x0);
         myPoints.add(y0);

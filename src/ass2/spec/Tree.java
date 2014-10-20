@@ -22,7 +22,7 @@ public class Tree {
         height   = DEFAULT_HEIGHT;
         width    = DEFAULT_WIDTH;
         //trunkColour = new float[]{0.35f, 0.31f, 0.27f, 1f};
-        trunkColour = new float[]{0.45f, 0.45f, 0.45f, 1f};
+        trunkColour = new float[]{1f, 1f, 1f, 1f};
         leafColour  = new float[]{0.45f, 0.65f, 0.26f, 1f};
         rotation = Math.random()*360;
     }

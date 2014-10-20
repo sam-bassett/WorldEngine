@@ -18,6 +18,7 @@ public class Terrain {
     private float[] mySunlight;
 
     public boolean isNight = false;
+    public boolean shineLight = false;
     private double time = 12.00;
 
     /**
@@ -82,6 +83,7 @@ public class Terrain {
         }
         // set night if time is during evening
         isNight = (time > 18.0 || time < 6.0);
+        shineLight = (time >= 17.50 || time <= 5.5);
     }
 
     public double getTime() {

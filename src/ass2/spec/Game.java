@@ -61,15 +61,6 @@ public class Game extends JFrame implements GLEventListener {
      */
     public static void main(String[] args) throws FileNotFoundException {
         Terrain terrain = LevelIO.load(new File(args[0]));
-        // For testing:
-        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/fiveByFive.json"));
-        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/exampleLevel.json"));
-        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/treeTest.json"));
-        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/basicLightTest.json"));
-        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/negativeLightTest.json"));
-        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/simpleBezier.json"));
-        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twinRoads.json"));
-        //Terrain terrain = LevelIO.load(new File("/Users/sam/Documents/Programming/IdeaProjects/WorldEngineAssignment/src/ass2/spec/TestLevels/twoSpline.json"));
         Camera c = new Camera();
         GameController gc = new GameController();
         Game game = new Game(terrain, c, gc);
@@ -86,7 +77,6 @@ public class Game extends JFrame implements GLEventListener {
         // White diffuse, specular lighting (from notes)
         float lightDifAndSpec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
         float lightDir[] = myTerrain.getSunlight();
-        // TODO not a hunjie on this light position, see negativeSunlightTest
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightDir, 0);
 
         float globAmb[] = { 0.2f, 0.2f, 0.2f, 1.0f };
@@ -105,6 +95,7 @@ public class Game extends JFrame implements GLEventListener {
         gl.glEnable(GL.GL_BLEND);
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
+        // Load textures
         terrainTex = new Texture(gl, "res/terrain.bmp");
         roadTex = new Texture(gl, "res/road.bmp");
         treeTex = new Texture(gl, "res/lamp.bmp");
@@ -147,6 +138,13 @@ public class Game extends JFrame implements GLEventListener {
                     (float) pos[1], (float) (pos[2] + 0.1*Math.sin(Math.toRadians(rotation))), 1.0f};
             gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, fPos, 0);
             gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, new float[]{0.1f,0.1f,0.1f,1.0f},0);
+            /*
+            float spotlight[] = new float[]{(float) (pos[0] + Math.cos(Math.toRadians(rotation))),
+                    0f, (float) (pos[2] + Math.sin(Math.toRadians(rotation))), 1.0f};
+            gl.glLightf(GL2.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 60);
+            gl.glLightf(GL2.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 20);
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPOT_DIRECTION, spotlight, 0);
+            */
             gl.glLightf(GL2.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, 0.2f);
             gl.glClearColor(0f,0f,0f,1f);
             //renderLight(gl, fPos);
@@ -270,16 +268,25 @@ public class Game extends JFrame implements GLEventListener {
             double deg = 45;// t.getRotation();
             gl.glRotated(deg, 0, 1, 0);
             glut.glutSolidCylinder(0.1, 0.5, 20,20);
-            if (myTerrain.isNight) {
+            if (myTerrain.shineLight) {
                 // lamp posts will shine some light at night.
                 // Light should come from end of horizontal arm:
+                float spotlight[] = new float[]{0f,-1f,0.2f,1f};
                 gl.glTranslated(0,-0.01,0.5);
                 gl.glEnable(lightArray[i]);
                 gl.glLightfv(lightArray[i], GL2.GL_POSITION, new float[]{0,1,0,1}, 0);
-                float lamp[] = new float[]{0.8f,0.8f,0.8f,1f};
+                float lamp[] = new float[]{1f,1f,1f,1f};
                 gl.glLightfv(lightArray[i], GL2.GL_DIFFUSE, lamp,0);
                 gl.glLightfv(lightArray[i], GL2.GL_SPECULAR, lamp,0);
-                gl.glLightf(lightArray[i++], GL2.GL_QUADRATIC_ATTENUATION, 0.2f);
+                gl.glLightf(lightArray[i], GL2.GL_SPOT_CUTOFF, 60f);
+                gl.glLightf(lightArray[i], GL2.GL_SPOT_EXPONENT, 20f);
+                gl.glLightfv(lightArray[i], GL2.GL_SPOT_DIRECTION, spotlight,0);
+                //gl.glLightf(lightArray[i], GL2.GL_QUADRATIC_ATTENUATION, 0.2f);
+                i++;
+            } else {
+                for (int l : lightArray) {
+                    gl.glDisable(l);
+                }
             }
             gl.glPopMatrix();
             // Undo tree location transform
@@ -337,6 +344,7 @@ public class Game extends JFrame implements GLEventListener {
                 // Render all faces of extrusion
                 // topFace - only one needing texture
                 gl.glBegin(GL2.GL_QUADS);
+                gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, new float[]{0.6f,0.6f,0.6f,1f},0);
                 // compute normal:
                 gl.glNormal3dv(MathUtils.normal(vertices[0], vertices[1], vertices[4]), 0);
                 int j = 0;

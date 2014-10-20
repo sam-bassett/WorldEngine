@@ -47,6 +47,10 @@ public class GameController implements KeyListener {
             t.isNight = !t.isNight;
             keyStates[KeyEvent.VK_N] = false;
         }
+        if (keyStates[KeyEvent.VK_L]) {
+            t.shineLight = !t.shineLight;
+            keyStates[KeyEvent.VK_L] = false;
+        }
     }
 
     @Override
