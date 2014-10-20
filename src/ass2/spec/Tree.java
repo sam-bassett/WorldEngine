@@ -12,7 +12,8 @@ public class Tree {
     private double[] myPos;
     private double height, width;
     private float[] trunkColour, leafColour;
-    
+    private double rotation;
+
     public Tree(double x, double y, double z) {
         myPos = new double[3];
         myPos[0] = x;
@@ -20,8 +21,10 @@ public class Tree {
         myPos[2] = z;
         height   = DEFAULT_HEIGHT;
         width    = DEFAULT_WIDTH;
-        trunkColour = new float[]{0.35f, 0.31f, 0.27f, 1f};
+        //trunkColour = new float[]{0.35f, 0.31f, 0.27f, 1f};
+        trunkColour = new float[]{0.45f, 0.45f, 0.45f, 1f};
         leafColour  = new float[]{0.45f, 0.65f, 0.26f, 1f};
+        rotation = Math.random()*360;
     }
     
     public double[] getPosition() {
@@ -58,5 +61,13 @@ public class Tree {
 
     public void setLeafColour(float r, float g, float b, float a) {
         leafColour = new float[]{r, g, b, a};
+    }
+
+    public double getRotation() {
+        return rotation;
+    }
+
+    public void setRotation(double r) {
+        rotation = r;
     }
 }

@@ -35,10 +35,14 @@ public class GameController implements KeyListener {
             c.sideStep(-0.1);
         if (keyStates[KeyEvent.VK_ESCAPE])
             System.exit(0);
-        if (keyStates[KeyEvent.VK_OPEN_BRACKET])
+        if (keyStates[KeyEvent.VK_OPEN_BRACKET]) {
             t.tickClock(-0.2);
-        if (keyStates[KeyEvent.VK_CLOSE_BRACKET])
+            System.out.println("Time: " + t.getTime());
+        }
+        if (keyStates[KeyEvent.VK_CLOSE_BRACKET]) {
             t.tickClock(0.2);
+            System.out.println("Time: " + t.getTime());
+        }
         if (keyStates[KeyEvent.VK_N]) {
             t.isNight = !t.isNight;
             keyStates[KeyEvent.VK_N] = false;

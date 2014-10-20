@@ -23,7 +23,7 @@ public class Game extends JFrame implements GLEventListener {
     private Terrain myTerrain;
     private Camera camera;
     private GameController control;
-    private Texture terrainTex, roadTex;
+    private Texture terrainTex, roadTex, treeTex;
 
     public Game(Terrain terrain, Camera c, GameController gc) {
     	super("Assignment 2");
@@ -106,7 +106,8 @@ public class Game extends JFrame implements GLEventListener {
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
         terrainTex = new Texture(gl, "res/terrain.bmp");
-        roadTex = new Texture(gl, "res/road.jpg");
+        roadTex = new Texture(gl, "res/road.bmp");
+        treeTex = new Texture(gl, "res/lamp.bmp");
         gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
         gl.glEnable(GL.GL_TEXTURE_2D);
     }
@@ -128,8 +129,8 @@ public class Game extends JFrame implements GLEventListener {
         double[] up  = camera.getUpVector();
         glu.gluLookAt(pos[0],pos[1],pos[2],
                 dir[0],dir[1],dir[2], up[0],up[1],up[2]);
-        handleLight(gl, pos);
 
+        handleLight(gl, pos);
         // Render Terrain
         renderTerrain(gl);
         renderTrees(gl);
@@ -148,15 +149,17 @@ public class Game extends JFrame implements GLEventListener {
             gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, new float[]{0.1f,0.1f,0.1f,1.0f},0);
             gl.glLightf(GL2.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, 0.2f);
             gl.glClearColor(0f,0f,0f,1f);
-            renderLight(gl, fPos);
+            //renderLight(gl, fPos);
         } else {
             // If not night mode, restore settings.
-            float lightDifAndSpec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+            float col[] = myTerrain.getSunlightColour();
+            // Sunset colour? Dark: 215,81,48; Light: 255,170,15 (day 255,255,255)
+            // As floats: d(0.84,0.32,0.19), l(1.00,0.67,0.06)
             float lightDir[] = myTerrain.getSunlight();
             gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightDir, 0);
-            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightDifAndSpec,0);
-            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightDifAndSpec,0);
-            gl.glClearColor(1f,1f,1f,1f);
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, col,0);
+            gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, col,0);
+            gl.glClearColor(col[0], col[1], col[2],1f);
         }
     }
 
@@ -233,10 +236,12 @@ public class Game extends JFrame implements GLEventListener {
         gl.glPushMatrix();
         GLUT glut = new GLUT();
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2.GL_FILL);
+        int lightArray[] = new int[]{GL2.GL_LIGHT1, GL2.GL_LIGHT2,
+                GL2.GL_LIGHT3, GL2.GL_LIGHT4, GL2.GL_LIGHT5, GL2.GL_LIGHT6, GL2.GL_LIGHT7};
+        int i = 1;
         // iterate through trees in Terrain, translating and drawing as required
         for(Tree t : treeList) {
             float trunk[] = t.getTrunkColour();
-            float leaves[]= t.getLeafColour();
             // get location
             double x = t.getPosition()[0];
             double y = t.getPosition()[1];
@@ -252,17 +257,35 @@ public class Game extends JFrame implements GLEventListener {
             gl.glRotated(-90, 1, 0, 0);
             // width, height, ...
             gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, trunk,0);
-            glut.glutSolidCylinder(0.1, 0.5, 20, 20);
+            // enable texture coordinate generation
+            // Thanks to http://stackoverflow.com/questions/327043/how-to-apply-texture-to-glutsolidcube
+            gl.glEnable(GL2.GL_TEXTURE_GEN_S);
+            gl.glEnable(GL2.GL_TEXTURE_GEN_T);
+            gl.glBindTexture(GL.GL_TEXTURE_2D, treeTex.getTextureID());
+            glut.glutSolidCylinder(0.1, 1.0, 20, 20);
             gl.glPopMatrix();
             gl.glPushMatrix();
-            gl.glTranslated(0, 0.5, 0);
-            // Leaves
-            gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, leaves,0);
-            glut.glutSolidSphere(0.2, 20, 20);
-            // Undo height transform
+            // translate up lamp post
+            gl.glTranslated(0, 0.9, 0);
+            double deg = 45;// t.getRotation();
+            gl.glRotated(deg, 0, 1, 0);
+            glut.glutSolidCylinder(0.1, 0.5, 20,20);
+            if (myTerrain.isNight) {
+                // lamp posts will shine some light at night.
+                // Light should come from end of horizontal arm:
+                gl.glTranslated(0,-0.01,0.5);
+                gl.glEnable(lightArray[i]);
+                gl.glLightfv(lightArray[i], GL2.GL_POSITION, new float[]{0,1,0,1}, 0);
+                float lamp[] = new float[]{0.8f,0.8f,0.8f,1f};
+                gl.glLightfv(lightArray[i], GL2.GL_DIFFUSE, lamp,0);
+                gl.glLightfv(lightArray[i], GL2.GL_SPECULAR, lamp,0);
+                gl.glLightf(lightArray[i++], GL2.GL_QUADRATIC_ATTENUATION, 0.2f);
+            }
             gl.glPopMatrix();
             // Undo tree location transform
             gl.glPopMatrix();
+            gl.glDisable(GL2.GL_TEXTURE_GEN_S); // disable texture coordinate generation
+            gl.glDisable(GL2.GL_TEXTURE_GEN_T);
         }
         // Undo final transform to return matrix to previous state
         gl.glPopMatrix();

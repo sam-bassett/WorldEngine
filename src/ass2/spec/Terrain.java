@@ -88,6 +88,25 @@ public class Terrain {
         return time;
     }
 
+    public float[] getSunlightColour() {
+        // At 1700, light sunset colours. 1730, dark.
+        // At 0600, dark. 0630, light.
+        float light[] = new float[]{1f,0.83f,0.53f,1f};
+        float dark[]  = new float[]{0.84f, 0.52f, 0.39f, 1f};
+        if(time > 7.0 && time < 17.00) {
+            return new float[]{1f,1f,1f,1f};
+        } else if (time >= 17.00 && time <= 17.50) {
+            return light;
+        } else if (time > 17.50 && time <= 18.00) {
+            return dark;
+        } else if (time >= 6.00 && time <= 6.20) {
+            return dark;
+        } else if (time > 6.20 && time <= 7.20) {
+            return light;
+        }
+        return new float[]{1f,1f,1f,1f};
+    }
+
     /**
      * Add <increment> hours to clock
      * @param increment number of hours to add
